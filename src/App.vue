@@ -40,21 +40,19 @@ export default {
       // 创建旋转粒子效果
       this.createRotatingParticles()
       
-      // 添加滚动动画效果
-      let count = 0
-      const interval = setInterval(() => {
-        const randomIndex = Math.floor(Math.random() * this.lunchOptions.length)
-        this.selectedLunch = this.lunchOptions[randomIndex]
-        count++
-        if (count >= 15) {
-          clearInterval(interval)
-          // 显示最终结果
-          const finalIndex = Math.floor(Math.random() * this.lunchOptions.length)
-          this.selectedLunch = this.lunchOptions[finalIndex]
-          // 创建最终的爆炸效果
-          this.createFinalExplosion()
-        }
-      }, 80)
+      // 创建粒子滚动特效
+      this.createParticleScroll()
+      
+      // 延迟显示最终结果
+      setTimeout(() => {
+        // 显示最终结果
+        const finalIndex = Math.floor(Math.random() * this.lunchOptions.length)
+        this.selectedLunch = this.lunchOptions[finalIndex]
+        // 创建最终的爆炸效果
+        this.createFinalExplosion()
+        // 创建文字粒子效果
+        this.createTextParticles(this.selectedLunch)
+      }, 1200)
     },
     initParticles() {
       const canvas = this.$refs.particlesCanvas
@@ -185,6 +183,54 @@ export default {
           life: 200
         })
       }
+    },
+    createParticleScroll() {
+      const canvas = this.$refs.particlesCanvas
+      const centerX = canvas.width / 2
+      const centerY = canvas.height / 2
+      
+      // 创建滚动的粒子流
+      for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+          for (let j = 0; j < 10; j++) {
+            this.particles.push({
+              x: centerX - 200 + Math.random() * 400,
+              y: centerY - 100,
+              size: Math.random() * 3 + 1,
+              speedX: (Math.random() - 0.5) * 2,
+              speedY: Math.random() * 5 + 2,
+              color: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
+              life: 100
+            })
+          }
+        }, i * 40)
+      }
+    },
+    createTextParticles(text) {
+      const canvas = this.$refs.particlesCanvas
+      const centerX = canvas.width / 2
+      const centerY = canvas.height / 2
+      
+      // 为文字创建粒子效果
+      const textWidth = text.length * 30
+      const startX = centerX - textWidth / 2
+      
+      for (let i = 0; i < text.length; i++) {
+        const charX = startX + i * 30
+        
+        // 为每个字符创建粒子
+        for (let j = 0; j < 15; j++) {
+          this.particles.push({
+            x: charX,
+            y: centerY,
+            size: Math.random() * 4 + 2,
+            speedX: (Math.random() - 0.5) * 3,
+            speedY: (Math.random() - 0.5) * 3,
+            color: `rgba(${Math.random() * 255}, ${Math.random() * 150 + 100}, ${Math.random() * 50}, 1)`,
+            life: 150
+          })
+        }
+      }
     }
   }
 }
@@ -245,12 +291,12 @@ export default {
 }
 
 .lunch-content {
-  background: rgba(255, 255, 255, 0.95);
+  background: transparent;
   border-radius: 20px;
   padding: 60px 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: none;
+  backdrop-filter: none;
+  border: none;
   animation: float 3s ease-in-out infinite;
 }
 
@@ -269,10 +315,10 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+  background: transparent;
   border-radius: 15px;
   padding: 30px;
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .lunch-result {
@@ -282,6 +328,7 @@ export default {
   margin: 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.5s ease-in;
+  text-align: center;
 }
 
 @keyframes fadeIn {
