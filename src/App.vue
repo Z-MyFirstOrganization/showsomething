@@ -337,11 +337,13 @@ export default {
 .lunch-result {
   font-size: 64px;
   font-weight: bold;
-  color: transparent;
+  color: white;
   margin: 0;
-  text-shadow: none;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.5s ease-in;
   text-align: center;
+  position: relative;
+  z-index: 20;
 }
 
 @keyframes fadeIn {
