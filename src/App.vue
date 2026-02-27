@@ -34,9 +34,21 @@ export default {
   },
   methods: {
     selectLunch() {
-      const randomIndex = Math.floor(Math.random() * this.lunchOptions.length)
-      this.selectedLunch = this.lunchOptions[randomIndex]
       this.createExplosion()
+      
+      // 添加滚动动画效果
+      let count = 0
+      const interval = setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * this.lunchOptions.length)
+        this.selectedLunch = this.lunchOptions[randomIndex]
+        count++
+        if (count >= 10) {
+          clearInterval(interval)
+          // 显示最终结果
+          const finalIndex = Math.floor(Math.random() * this.lunchOptions.length)
+          this.selectedLunch = this.lunchOptions[finalIndex]
+        }
+      }, 100)
     },
     initParticles() {
       const canvas = this.$refs.particlesCanvas
