@@ -34,7 +34,11 @@ export default {
   },
   methods: {
     selectLunch() {
-      this.createExplosion()
+      // 清空当前选择
+      this.selectedLunch = ''
+      
+      // 创建旋转粒子效果
+      this.createRotatingParticles()
       
       // 添加滚动动画效果
       let count = 0
@@ -42,13 +46,15 @@ export default {
         const randomIndex = Math.floor(Math.random() * this.lunchOptions.length)
         this.selectedLunch = this.lunchOptions[randomIndex]
         count++
-        if (count >= 10) {
+        if (count >= 15) {
           clearInterval(interval)
           // 显示最终结果
           const finalIndex = Math.floor(Math.random() * this.lunchOptions.length)
           this.selectedLunch = this.lunchOptions[finalIndex]
+          // 创建最终的爆炸效果
+          this.createFinalExplosion()
         }
-      }, 100)
+      }, 80)
     },
     initParticles() {
       const canvas = this.$refs.particlesCanvas
@@ -74,18 +80,47 @@ export default {
       const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         
+        // 过滤掉生命周期结束的粒子
+        this.particles = this.particles.filter(p => !p.life || p.life > 0)
+        
         for (let i = 0; i < this.particles.length; i++) {
           const p = this.particles[i]
+          
+          // 绘制粒子
           ctx.beginPath()
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
           ctx.fillStyle = p.color
           ctx.fill()
           
+          // 更新粒子位置
           p.x += p.speedX
           p.y += p.speedY
           
-          if (p.x < 0 || p.x > canvas.width) p.speedX *= -1
-          if (p.y < 0 || p.y > canvas.height) p.speedY *= -1
+          // 处理旋转粒子
+          if (p.rotating) {
+            // 让粒子围绕中心旋转
+            const centerX = canvas.width / 2
+            const centerY = canvas.height / 2
+            const dx = p.x - centerX
+            const dy = p.y - centerY
+            const angle = Math.atan2(dy, dx) + 0.1
+            const radius = Math.sqrt(dx * dx + dy * dy)
+            p.x = centerX + Math.cos(angle) * radius
+            p.y = centerY + Math.sin(angle) * radius
+          }
+          
+          // 处理生命周期
+          if (p.life) {
+            p.life--
+            // 随着生命周期减少，粒子逐渐变小并透明
+            p.size *= 0.98
+            const alpha = p.life / 100
+            p.color = p.color.replace(/rgba\(([^,]+), ([^,]+), ([^,]+), [^)]+\)/, `rgba($1, $2, $3, ${alpha})`)
+          } else {
+            // 普通粒子的边界碰撞
+            if (p.x < 0 || p.x > canvas.width) p.speedX *= -1
+            if (p.y < 0 || p.y > canvas.height) p.speedY *= -1
+          }
         }
         
         requestAnimationFrame(animate)
@@ -107,6 +142,47 @@ export default {
           speedY: (Math.random() - 0.5) * 5,
           color: `rgba(${Math.random() * 255}, ${Math.random() * 150 + 100}, ${Math.random() * 50}, 1)`,
           life: 100
+        })
+      }
+    },
+    createRotatingParticles() {
+      const canvas = this.$refs.particlesCanvas
+      const centerX = canvas.width / 2
+      const centerY = canvas.height / 2
+      
+      for (let i = 0; i < 36; i++) {
+        const angle = (i * 10) * Math.PI / 180
+        const radius = 100
+        
+        this.particles.push({
+          x: centerX + Math.cos(angle) * radius,
+          y: centerY + Math.sin(angle) * radius,
+          size: Math.random() * 4 + 2,
+          speedX: Math.cos(angle) * 3,
+          speedY: Math.sin(angle) * 3,
+          color: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
+          life: 150,
+          rotating: true
+        })
+      }
+    },
+    createFinalExplosion() {
+      const canvas = this.$refs.particlesCanvas
+      const centerX = canvas.width / 2
+      const centerY = canvas.height / 2
+      
+      for (let i = 0; i < 80; i++) {
+        const angle = (i * 4.5) * Math.PI / 180
+        const speed = Math.random() * 6 + 3
+        
+        this.particles.push({
+          x: centerX,
+          y: centerY,
+          size: Math.random() * 5 + 2,
+          speedX: Math.cos(angle) * speed,
+          speedY: Math.sin(angle) * speed,
+          color: `rgba(${Math.random() * 255}, ${Math.random() * 150 + 100}, ${Math.random() * 50}, 1)`,
+          life: 200
         })
       }
     }
