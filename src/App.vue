@@ -208,26 +208,39 @@ export default {
     },
     createTextParticles(text) {
       const canvas = this.$refs.particlesCanvas
+      const ctx = canvas.getContext('2d')
       const centerX = canvas.width / 2
       const centerY = canvas.height / 2
       
-      // 为文字创建粒子效果
-      const textWidth = text.length * 30
+      // 设置文字样式
+      ctx.font = '64px Arial'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      
+      // 测量文字宽度
+      const textWidth = ctx.measureText(text).width
       const startX = centerX - textWidth / 2
       
+      // 创建文字粒子
       for (let i = 0; i < text.length; i++) {
-        const charX = startX + i * 30
+        const char = text[i]
+        const charWidth = ctx.measureText(char).width
+        const charX = startX + ctx.measureText(text.substring(0, i)).width + charWidth / 2
         
-        // 为每个字符创建粒子
-        for (let j = 0; j < 15; j++) {
+        // 为每个字符创建更多粒子，形成文字形状
+        for (let j = 0; j < 30; j++) {
+          // 随机偏移，形成文字轮廓
+          const offsetX = (Math.random() - 0.5) * charWidth * 0.8
+          const offsetY = (Math.random() - 0.5) * 60
+          
           this.particles.push({
-            x: charX,
-            y: centerY,
-            size: Math.random() * 4 + 2,
-            speedX: (Math.random() - 0.5) * 3,
-            speedY: (Math.random() - 0.5) * 3,
+            x: charX + offsetX,
+            y: centerY + offsetY,
+            size: Math.random() * 5 + 2,
+            speedX: (Math.random() - 0.5) * 2,
+            speedY: (Math.random() - 0.5) * 2,
             color: `rgba(${Math.random() * 255}, ${Math.random() * 150 + 100}, ${Math.random() * 50}, 1)`,
-            life: 150
+            life: 200
           })
         }
       }
@@ -324,9 +337,9 @@ export default {
 .lunch-result {
   font-size: 64px;
   font-weight: bold;
-  color: white;
+  color: transparent;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: none;
   animation: fadeIn 0.5s ease-in;
   text-align: center;
 }
