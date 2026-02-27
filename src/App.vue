@@ -11,6 +11,7 @@
           <a href="#about">关于我</a>
           <a href="#skills">技能</a>
           <a href="#projects">项目</a>
+          <a href="#lunch">午饭吃什么</a>
           <a href="#contact">联系我</a>
         </div>
       </div>
@@ -165,6 +166,19 @@
       </div>
     </section>
 
+    <!-- 午饭吃什么 -->
+    <section id="lunch" class="lunch">
+      <div class="container">
+        <h2 class="section-title">午饭吃什么</h2>
+        <div class="lunch-content card">
+          <div class="lunch-display">
+            <h3 class="lunch-result">{{ selectedLunch || '点击按钮选择' }}</h3>
+          </div>
+          <button class="btn lunch-button" @click="selectLunch">随机选择</button>
+        </div>
+      </div>
+    </section>
+
     <!-- 联系我 -->
     <section id="contact" class="contact">
       <div class="container">
@@ -222,7 +236,19 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  data() {
+    return {
+      lunchOptions: ['自助', '蒸菜', '拉面', '旺客来', '点外卖'],
+      selectedLunch: ''
+    }
+  },
+  methods: {
+    selectLunch() {
+      const randomIndex = Math.floor(Math.random() * this.lunchOptions.length)
+      this.selectedLunch = this.lunchOptions[randomIndex]
+    }
+  }
 }
 </script>
 
@@ -509,6 +535,49 @@ export default {
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
+/* 午饭吃什么 */
+.lunch {
+  background-color: var(--background-color);
+}
+
+.lunch-content {
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.lunch-display {
+  margin-bottom: 30px;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lunch-result {
+  font-size: 48px;
+  font-weight: bold;
+  color: var(--accent-color);
+  margin: 0;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lunch-button {
+  font-size: 20px;
+  padding: 15px 40px;
+}
+
 /* 页脚 */
 .footer {
   background-color: var(--primary-color);
@@ -539,6 +608,15 @@ export default {
   
   .section-title {
     font-size: 28px;
+  }
+  
+  .lunch-result {
+    font-size: 32px;
+  }
+  
+  .lunch-button {
+    font-size: 18px;
+    padding: 12px 30px;
   }
 }
 </style>
