@@ -7,8 +7,8 @@
           <h1>生活助手</h1>
         </div>
         <div class="navbar-links">
-          <a href="#lunch">午餐选择</a>
-          <a href="#hotsearch">热搜榜</a>
+          <router-link to="/">午餐选择</router-link>
+          <router-link to="/hotsearch">热搜榜</router-link>
         </div>
       </div>
     </nav>
@@ -16,47 +16,12 @@
     <!-- 粒子动画背景 -->
     <canvas ref="particlesCanvas" class="particles-bg"></canvas>
     
-    <!-- 午餐随机选择器 -->
-    <section id="lunch" class="lunch">
-      <div class="container">
-        <h1 class="main-title">午餐随机选择器</h1>
-        <div class="lunch-content card">
-          <div class="lunch-display">
-            <h2 class="lunch-result">{{ selectedLunch || '点击按钮开始选择' }}</h2>
-          </div>
-          <button class="btn lunch-button" @click="selectLunch">随机选择</button>
-        </div>
-      </div>
-    </section>
-    
-    <!-- 热搜榜 -->
-    <section id="hotsearch" class="hotsearch">
-      <div class="container">
-        <h1 class="main-title">每日热搜榜</h1>
-        <div class="hotsearch-content card">
-          <div class="hotsearch-tabs">
-            <button :class="['tab-button', { active: activeTab === 'baidu' }]" @click="activeTab = 'baidu'">百度热搜</button>
-            <button :class="['tab-button', { active: activeTab === 'weibo' }]" @click="activeTab = 'weibo'">微博热搜</button>
-          </div>
-          <div class="hotsearch-list" v-if="activeTab === 'baidu'">
-            <div v-if="baiduHotSearch.length === 0" class="loading">加载中...</div>
-            <div v-else class="search-item" v-for="(item, index) in baiduHotSearch" :key="index">
-              <span class="rank">{{ index + 1 }}</span>
-              <span class="title">{{ item.title }}</span>
-              <span class="hot">{{ item.hot }}</span>
-            </div>
-          </div>
-          <div class="hotsearch-list" v-else>
-            <div v-if="weiboHotSearch.length === 0" class="loading">加载中...</div>
-            <div v-else class="search-item" v-for="(item, index) in weiboHotSearch" :key="index">
-              <span class="rank">{{ index + 1 }}</span>
-              <span class="title">{{ item.title }}</span>
-              <span class="hot">{{ item.hot }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- 路由视图 -->
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
   </div>
 </template>
 
@@ -65,41 +30,14 @@ export default {
   name: 'App',
   data() {
     return {
-      lunchOptions: ['自助', '蒸菜', '拉面', '旺客来', '点外卖'],
-      selectedLunch: '',
-      particles: [],
-      activeTab: 'baidu',
-      baiduHotSearch: [],
-      weiboHotSearch: []
+      particles: []
     }
   },
   mounted() {
     this.initParticles()
     this.animateParticles()
-    this.getHotSearchData()
   },
   methods: {
-    selectLunch() {
-      // 清空当前选择
-      this.selectedLunch = ''
-      
-      // 创建旋转粒子效果
-      this.createRotatingParticles()
-      
-      // 创建粒子滚动特效
-      this.createParticleScroll()
-      
-      // 延迟显示最终结果
-      setTimeout(() => {
-        // 显示最终结果
-        const finalIndex = Math.floor(Math.random() * this.lunchOptions.length)
-        this.selectedLunch = this.lunchOptions[finalIndex]
-        // 创建最终的爆炸效果
-        this.createFinalExplosion()
-        // 创建文字粒子效果
-        this.createTextParticles(this.selectedLunch)
-      }, 1200)
-    },
     initParticles() {
       const canvas = this.$refs.particlesCanvas
       const ctx = canvas.getContext('2d')
@@ -171,154 +109,6 @@ export default {
       }
       
       animate()
-    },
-    createExplosion() {
-      const canvas = this.$refs.particlesCanvas
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      
-      for (let i = 0; i < 50; i++) {
-        this.particles.push({
-          x: centerX,
-          y: centerY,
-          size: Math.random() * 3 + 1,
-          speedX: (Math.random() - 0.5) * 5,
-          speedY: (Math.random() - 0.5) * 5,
-          color: `rgba(${Math.random() * 255}, ${Math.random() * 150 + 100}, ${Math.random() * 50}, 1)`,
-          life: 100
-        })
-      }
-    },
-    createRotatingParticles() {
-      const canvas = this.$refs.particlesCanvas
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      
-      for (let i = 0; i < 36; i++) {
-        const angle = (i * 10) * Math.PI / 180
-        const radius = 100
-        
-        this.particles.push({
-          x: centerX + Math.cos(angle) * radius,
-          y: centerY + Math.sin(angle) * radius,
-          size: Math.random() * 4 + 2,
-          speedX: Math.cos(angle) * 3,
-          speedY: Math.sin(angle) * 3,
-          color: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
-          life: 150,
-          rotating: true
-        })
-      }
-    },
-    createFinalExplosion() {
-      const canvas = this.$refs.particlesCanvas
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      
-      for (let i = 0; i < 80; i++) {
-        const angle = (i * 4.5) * Math.PI / 180
-        const speed = Math.random() * 6 + 3
-        
-        this.particles.push({
-          x: centerX,
-          y: centerY,
-          size: Math.random() * 5 + 2,
-          speedX: Math.cos(angle) * speed,
-          speedY: Math.sin(angle) * speed,
-          color: `rgba(${Math.random() * 255}, ${Math.random() * 150 + 100}, ${Math.random() * 50}, 1)`,
-          life: 200
-        })
-      }
-    },
-    createParticleScroll() {
-      const canvas = this.$refs.particlesCanvas
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      
-      // 创建滚动的粒子流
-      for (let i = 0; i < 30; i++) {
-        setTimeout(() => {
-          for (let j = 0; j < 10; j++) {
-            this.particles.push({
-              x: centerX - 200 + Math.random() * 400,
-              y: centerY - 100,
-              size: Math.random() * 3 + 1,
-              speedX: (Math.random() - 0.5) * 2,
-              speedY: Math.random() * 5 + 2,
-              color: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
-              life: 100
-            })
-          }
-        }, i * 40)
-      }
-    },
-    createTextParticles(text) {
-      const canvas = this.$refs.particlesCanvas
-      const ctx = canvas.getContext('2d')
-      const centerX = canvas.width / 2
-      const centerY = canvas.height / 2
-      
-      // 设置文字样式
-      ctx.font = '64px Arial'
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      
-      // 测量文字宽度
-      const textWidth = ctx.measureText(text).width
-      const startX = centerX - textWidth / 2
-      
-      // 创建文字粒子
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i]
-        const charWidth = ctx.measureText(char).width
-        const charX = startX + ctx.measureText(text.substring(0, i)).width + charWidth / 2
-        
-        // 为每个字符创建更多粒子，形成文字形状
-        for (let j = 0; j < 30; j++) {
-          // 随机偏移，形成文字轮廓
-          const offsetX = (Math.random() - 0.5) * charWidth * 0.8
-          const offsetY = (Math.random() - 0.5) * 60
-          
-          this.particles.push({
-            x: charX + offsetX,
-            y: centerY + offsetY,
-            size: Math.random() * 5 + 2,
-            speedX: (Math.random() - 0.5) * 2,
-            speedY: (Math.random() - 0.5) * 2,
-            color: `rgba(${Math.random() * 255}, ${Math.random() * 150 + 100}, ${Math.random() * 50}, 1)`,
-            life: 200
-          })
-        }
-      }
-    },
-    getHotSearchData() {
-      // 模拟百度热搜数据
-      this.baiduHotSearch = [
-        { title: '春节假期安排', hot: '123456' },
-        { title: '2026年房价走势', hot: '987654' },
-        { title: '最新电影推荐', hot: '876543' },
-        { title: '股票市场分析', hot: '765432' },
-        { title: '健康饮食指南', hot: '654321' },
-        { title: '旅游景点推荐', hot: '543210' },
-        { title: '教育政策变化', hot: '432109' },
-        { title: '科技新闻资讯', hot: '321098' },
-        { title: '体育赛事结果', hot: '210987' },
-        { title: '明星八卦新闻', hot: '109876' }
-      ]
-      
-      // 模拟微博热搜数据
-      this.weiboHotSearch = [
-        { title: '热门话题讨论', hot: '234567' },
-        { title: '明星结婚喜讯', hot: '198765' },
-        { title: '网络流行语', hot: '187654' },
-        { title: '社会热点事件', hot: '176543' },
-        { title: '综艺节目热度', hot: '165432' },
-        { title: '时尚潮流趋势', hot: '154321' },
-        { title: '美食推荐', hot: '143210' },
-        { title: '健身减肥方法', hot: '132109' },
-        { title: '职场生存技巧', hot: '121098' },
-        { title: '亲子教育经验', hot: '110987' }
-      ]
     }
   }
 }
@@ -500,117 +290,6 @@ export default {
   box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
 }
 
-/* 热搜榜 */
-.hotsearch {
-  position: relative;
-  z-index: 10;
-  min-height: 100vh;
-  padding: 120px 20px 40px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.hotsearch-content {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  width: 100%;
-  max-width: 600px;
-}
-
-.hotsearch-tabs {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-  justify-content: center;
-}
-
-.tab-button {
-  padding: 12px 30px;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  border-radius: 50px;
-  color: white;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.tab-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
-}
-
-.tab-button.active {
-  background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-}
-
-.hotsearch-list {
-  max-height: 500px;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
-.search-item {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.search-item:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateX(5px);
-}
-
-.rank {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  margin-right: 15px;
-  flex-shrink: 0;
-}
-
-.title {
-  flex: 1;
-  color: white;
-  font-size: 16px;
-  text-align: left;
-  margin-right: 15px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hot {
-  color: #ff4757;
-  font-size: 14px;
-  font-weight: 500;
-  flex-shrink: 0;
-}
-
-.loading {
-  color: white;
-  text-align: center;
-  padding: 40px;
-  font-size: 18px;
-}
-
 /* 响应式设计 */
 @media (max-width: 768px) {
   .main-title {
@@ -629,27 +308,6 @@ export default {
     font-size: 20px;
     padding: 15px 40px;
   }
-  
-  .hotsearch {
-    padding: 100px 20px 40px;
-  }
-  
-  .hotsearch-content {
-    padding: 30px 20px;
-  }
-  
-  .tab-button {
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-  
-  .search-item {
-    padding: 12px;
-  }
-  
-  .title {
-    font-size: 14px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -664,33 +322,6 @@ export default {
   .lunch-button {
     font-size: 18px;
     padding: 12px 30px;
-  }
-  
-  .hotsearch-tabs {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .tab-button {
-    width: 100%;
-  }
-  
-  .search-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .rank {
-    margin-right: 0;
-  }
-  
-  .title {
-    width: 100%;
-  }
-  
-  .hot {
-    align-self: flex-end;
   }
 }
 </style>
